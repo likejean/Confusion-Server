@@ -3,5 +3,38 @@
     <body>
         <h1>Index.html</h1>
         <p>This is the contents of this file</p>
+        <script> 
+            // Iterative function to implement Binary Search 
+            function binarySearch (array, key) {      
+                let start = 0, end = array.length - 1;
+                // Iterate while start not meets end 
+                while (start <= end){ 
+                    // Find the mid index 
+                    var mid = Math.floor((start + end)/2); 
+                    // If element is present at mid, return True 
+                    if (array[mid] === key) return mid; 
+                    // Else look in left or right half accordingly 
+                    else if (array[mid] < key)  
+                        start = mid + 1; 
+                    else
+                        end = mid - 1; 
+                }      
+                return false; 
+            } 
+                
+            // Driver code 
+            let arr = [1, 3, 5, 7, 8, 9]; 
+            let target = 5; 
+                
+            if (binarySearch (arr, target)) 
+                console.log('Element found at idex: ' + binarySearch (arr, target, 0, arr.length - 1) + '!'); 
+            else console.log("Element not found!"); 
+                
+            target = 0; 
+                
+            if (binarySearch (arr, target)) 
+                console.log('Element found at index: ' + binarySearch (arr, target, 0, arr.length - 1) + '!'); 
+            else console.log("Element not found!");
+        </script>
     </body>
 </html>

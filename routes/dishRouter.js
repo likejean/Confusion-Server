@@ -1,8 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 
+
 const dishRouter = express.Router();
 dishRouter.use(bodyParser.json());
+dishRouter.use(bodyParser.urlencoded({ extended: true }));
 
 //// route('/')
 dishRouter.route('/')
@@ -12,7 +14,7 @@ dishRouter.route('/')
     next();
 }).get((req,res,next) => {
     res.end('Will send all the dishes to you!');
-}).post((req, res, next) => {
+}).post((req, res, next) => {    
     res.end('Will add the dish: ' + req.body.name + ' with details: ' + req.body.description);
 }).put((req, res, next) => {
     res.statusCode = 403;
