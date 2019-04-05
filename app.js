@@ -15,6 +15,7 @@ const Dishes = require('./models/dishes');
 
 const url = 'mongodb://localhost:27017/conFusion';
 const connect = mongoose.connect(url);
+///mongod --dbpath=data --bind_ip 127.0.0.1
 
 connect.then((db) => {
   	console.log('Connected correctly to server');
