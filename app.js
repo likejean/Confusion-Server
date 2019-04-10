@@ -19,8 +19,11 @@ const mongoose = require('mongoose');
 
 const Dishes = require('./models/dishes');
 
+
 const url = config.mongoUrl;
-const connect = mongoose.connect(url);
+const connect = mongoose.connect(url, {useNewUrlParser: true });
+mongoose.set('useCreateIndex', true);
+
 ///mongod --dbpath=data --bind_ip 127.0.0.1
 
 connect.then((db) => {
