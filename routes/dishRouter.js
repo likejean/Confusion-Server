@@ -194,54 +194,61 @@ dishRouter.route('/:dishId/comments/:commentId')
 .put(authenticate.verifyUser, (req, res, next) => {
     Dishes.findById(req.params.dishId)
     .then((dish) => {
-        console.log("USER ID: ", req.user.id);
-        console.log("AUTHOR ID: ", dish.comments.id(req.params.commentId).author);
-        if (req.user.id == (dish.comments.id(req.params.commentId).author)) {
-            if (dish != null && dish.comments.id(req.params.commentId) != null) {
-                if (req.body.rating) {
-                    dish.comments.id(req.params.commentId).rating = req.body.rating;
-                }
-                if (req.body.comment) {
-                    dish.comments.id(req.params.commentId).comment = req.body.comment;                
-                }
-                dish.save()
-                .then((dish) => {
-                    Dishes.findById(dish._id)
-                    .populate('comments.author')
+        // console.log("USER ID: ", req.user.id);
+        // console.log("AUTHOR ID: ", dish.comments.id(req.params.commentId).author);
+        if (dish.comments.id(req.params.commentId) != null){
+            if (req.user.id == (dish.comments.id(req.params.commentId).author)) {
+                if (dish != null && dish.comments.id(req.params.commentId) != null) {
+                    if (req.body.rating) {
+                        dish.comments.id(req.params.commentId).rating = req.body.rating;
+                    }
+                    if (req.body.comment) {
+                        dish.comments.id(req.params.commentId).comment = req.body.comment;                
+                    }
+                    dish.save()
                     .then((dish) => {
-                        res.statusCode = 200;
-                        res.setHeader('Content-Type', 'application/json');
-                        res.json(dish);
-                    })                                
-                }, (err) => next(err));
-            }
-            else if (dish == null) {
-                err = new Error('Dish ' + req.params.dishId + ' not found');
-                err.status = 404;
-                return next(err);
-            }
+                        Dishes.findById(dish._id)
+                        .populate('comments.author')
+                        .then((dish) => {
+                            res.statusCode = 200;
+                            res.setHeader('Content-Type', 'application/json');
+                            res.json(dish);
+                        })                                
+                    }, (err) => next(err));
+                }
+                else if (dish == null) {
+                    err = new Error('Dish ' + req.params.dishId + ' not found');
+                    err.status = 404;
+                    return next(err);
+                }
+                else {
+                    err = new Error('Comment ' + req.params.commentId + ' not found');
+                    err.status = 404;
+                    return next(err);            
+                }
+            }        
             else {
-                err = new Error('Comment ' + req.params.commentId + ' not found');
+                err = new Error('User ' + req.user.username + 
+                ' with ID: ' + req.user.id + 
+                ' is not authorized to CHANGE this comment!!!');
                 err.status = 404;
-                return next(err);            
+                return next(err);     
             }
-        } 
+        }        
         else {
-            err = new Error('User ' + req.user.username + 
-            ' with ID: ' + req.user.id + 
-            ' is not authorized to CHANGE this comment!!!');
-        err.status = 404;
-        return next(err);     
-        }       
+            err = new Error('This comment does not exist...');
+            err.status = 404;
+            return next(err); 
+        }      
     }, (err) => next(err))
     .catch((err) => next(err));
 })
 .delete(authenticate.verifyUser, (req, res, next) => {
     Dishes.findById(req.params.dishId)
     .then((dish) => {
-        console.log("USER ID: ", req.user.id);
-        console.log("AUTHOR ID: ", dish.comments);
-        console.log("COMMENT: ", dish.comments.id(req.params.commentId));
+        // console.log("USER ID: ", req.user.id);
+        // console.log("AUTHOR ID: ", dish.comments);
+        // console.log("COMMENT: ", dish.comments.id(req.params.commentId));
         if (dish.comments.id(req.params.commentId) != null){
             if (req.user.id == (dish.comments.id(req.params.commentId).author)) {
                 if (dish != null && dish.comments.id(req.params.commentId).author != null) {
