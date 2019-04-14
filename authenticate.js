@@ -45,7 +45,7 @@ exports.jwtPassport = passport.use(new JwtStrategy(opts,
 
 
 exports.verifyAdmin = function (req, res, next) {
-        console.log(req.user.admin);
+        
         if (req.user.admin === true) { 
             next();
         } else {
