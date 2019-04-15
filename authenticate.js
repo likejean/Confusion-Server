@@ -4,6 +4,7 @@ var User = require('./models/users');
 var JwtStrategy = require('passport-jwt').Strategy //strategy for authenticating with a JSON Web Token
 var ExtractJwt = require('passport-jwt').ExtractJwt;
 var jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
+var FacebookTokenStrategy = require('passport-facebook-token');
 
 /// passport-jwt => A Passport strategy for authenticating with a JSON Web Token
 /// Passport is authentication middleware for Node, which serves one purpose, to authenticate requests
@@ -56,3 +57,32 @@ exports.verifyAdmin = function (req, res, next) {
     };
 
 exports.verifyUser = passport.authenticate('jwt', {session: false});
+
+exports.facebookPassport = passport.use(new FacebookTokenStrategy({
+        clientID: config.facebook.clientId,
+        clientSecret: config.facebook.clientSecret
+    }, (accessToken, refreshToken, profile, done) => {
+        User.findOne({facebookId: profile.id}, (err, user) => {
+            if (err) {
+                return done(err, false);
+            }
+            if (!err && user != null) {
+                return done(null, user);
+            }
+            else {
+                user = new User({ username: profile.displayName });
+                user.facebookId = profile.id;
+                user.firstname = profile.name.givenName;
+                user.lastname = profile.name.familyName;
+                user.save((err, user) => {
+                    if (err){
+                       return done(err, false); 
+                    }
+                    else {
+                        return done(null, user);
+                    }                        
+                })
+            }
+        });
+    }
+));
