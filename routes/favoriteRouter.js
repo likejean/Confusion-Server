@@ -14,6 +14,7 @@ favoriteRouter.route('/')
 .options(cors.corsWithOptions, (req, res) => {
     res.sendStatus(200);
 })
+
 .get(cors.cors, authenticate.verifyUser, (req, res, next) => {
     console.log('REQ USER', req.user._id)
     Favorites.findOne({ user: req.user._id })
@@ -26,6 +27,7 @@ favoriteRouter.route('/')
     }, (err) => next(err))
     .catch((err) => next(err));
 })
+
 .post(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
     console.log("REQ.USER", req.user._id);
 
@@ -54,9 +56,19 @@ favoriteRouter.route('/')
             })
         } 
         else {
-            res.statusCode = 403;
-            res.setHeader('Content-Type', 'text/plain');
-            res.end('Dish ' + req.params.dishId + ' already ')
+            for (var i = 0; i < req.body.length; i++)
+                    if (favorite.dishes.indexOf(req.body[i]._id) < 0)                    
+                        favorite.dishes.push(req.body[i]);
+                favorite.save()
+                .then((favorite) => {
+                    console.log('My Favorite Dish Added!..')
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'application/json');
+                    res.json(favorite);
+                })        
+                .catch((err) => {
+                    return next(err);
+            });
         }    
     });
 })
