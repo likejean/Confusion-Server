@@ -25,7 +25,7 @@ favoriteRouter.route('/')
         res.setHeader('Content-Type', 'application/json');
         res.json(favorites);
     }, (err) => next(err))
-    .catch((err) => next(err));
+    .catch((err) => {next(err), res.end("You don't have favorite dishes.Get one!")});
 })
 
 .post(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
@@ -38,17 +38,18 @@ favoriteRouter.route('/')
             Favorites.create({ user: req.user._id })
             .then((favorite) => {
                 for (var i = 0; i < req.body.length; i++)
-                    if (favorite.dishes.indexOf(req.body[i]._id) < 0)                    
+                    if (favorite.dishes.indexOf(req.body[i]._id) < 0)
                         favorite.dishes.push(req.body[i]);
-                favorite.save()
-                .then((favorite) => {
-                    console.log('Favorite created!..')
-                    res.statusCode = 200;
-                    res.setHeader('Content-Type', 'application/json');
-                    res.json(favorite);
-                })        
-                .catch((err) => {
-                    return next(err);
+                    
+                    favorite.save()
+                    .then((favorite) => {
+                        console.log('Favorite created!..')
+                        res.statusCode = 200;
+                        res.setHeader('Content-Type', 'application/json');
+                        res.json(favorite);
+                    })        
+                    .catch((err) => {
+                        return next(err);
                 }); 
             })
             .catch((err) => {
@@ -57,8 +58,8 @@ favoriteRouter.route('/')
         } 
         else {
             for (var i = 0; i < req.body.length; i++)
-                    if (favorite.dishes.indexOf(req.body[i]._id) < 0)                    
-                        favorite.dishes.push(req.body[i]);
+                if (favorite.dishes.indexOf(req.body[i]._id) < 0)
+                    favorite.dishes.push(req.body[i]);                
                 favorite.save()
                 .then((favorite) => {
                     console.log('My Favorite Dish Added!..')
@@ -105,6 +106,7 @@ favoriteRouter.route('/:dishId')
 
 .post(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
     console.log(req.user._id);
+    console.log(req.params.dishId);
 
     Favorites.findOne({ user: req.user._id }, (err, favorite) => {
         if (err) return next(err);
@@ -112,7 +114,7 @@ favoriteRouter.route('/:dishId')
         if (!favorite) {
             Favorites.create({ user: req.user._id })
             .then((favorite) => {                     
-                favorite.dishes.push({"_id": req.params.dish});
+                favorite.dishes.push({"_id": req.params.dishId});
                 favorite.save()
                 .then((favorite) => {
                     console.log('Favorite created!..')
@@ -129,9 +131,8 @@ favoriteRouter.route('/:dishId')
             })
         } 
         else {
-
             if (favorite.dishes.indexOf(req.params.dishId) < 0) {
-                favorite.dishes.push({"_id": req.params.dish});
+                favorite.dishes.push({"_id": req.params.dishId});
                 favorite.save()
                 .then((favorite) => {
                     res.statusCode = 200;
@@ -165,10 +166,10 @@ favoriteRouter.route('/:dishId')
         
         var index = favorite.dishes.indexOf(req.params.dishId);
         if ( index >=0 ) {
-            favorite.dishes.splice(index,1);
+            favorite.dishes.splice(index, 1);
             favorite.save()           
             .then((favorite) => {
-                console.log('Favorite Dish Deleted!..', favorite.dishes[index])
+                console.log('Favorite Dish {' + req.params.dishId + '} Deleted!..')
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
                 res.json(favorite);
@@ -180,7 +181,7 @@ favoriteRouter.route('/:dishId')
         else {
             res.statusCode = 403;
             res.setHeader('Content-Type', 'text/plain');
-            res.end('Dish ' + req.params.dishId + ' already deleted')
+            res.end('Dish ' + req.params.dishId + ' was already deleted or never exist...')
         }  
     })
 });
